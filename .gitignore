@@ -1,5 +1,6 @@
 .DS_Store
 *.log
 node_modules/
-# build artifacts — packaged per release, attached to GH releases, not committed
+# build artifacts — packaged into dist/ per release, attached to GH releases, not committed
+dist/
 *.mds.zip
