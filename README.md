@@ -1,28 +1,29 @@
 # minimaCore App Store (MiniDapp)
 
-A MiniDapp for **Minima Classic** (the official MDS node with MiniHub) that is essentially a
-web clone of the native **PandaApps** APK store. It gives users on a Minima node a path from
-inside MiniHub to the native Android app ecosystem.
+A MiniDapp for **Minima Classic** (the official MDS node with MiniHub) with three tabs:
 
-It fetches the **same** catalog the native PandaApps app reads —
-`https://raw.githubusercontent.com/eurobuddha/minima-core-apks/main/apks.json` — and renders
-every app (the minimaCore node APK, the PandaApps store, PandaPools, wallets, and the rest),
-grouped exactly like the native app:
+1. **Android Apps** — a web clone of the native **PandaApps** APK store. Fetches the **same**
+   catalog the native app reads —
+   `https://raw.githubusercontent.com/eurobuddha/minima-core-apks/main/apks.json` — and renders
+   every app grouped exactly like the native app (**YOUR APPS** / **OFFICIAL MINIMA** / **MORE**),
+   each with a **Download** button.
+2. **PandaDapps** — the community MiniDapp store (`https://eurobuddha.com/pandadapps.json`),
+   with **one-tap Install** straight onto the node this MiniDapp is running on.
+3. **Minima Dapps** — the eurobuddha-hosted official Minima MiniDapp catalog
+   (`https://eurobuddha.com/store/minimadapps.json`), same one-tap Install.
 
-- **YOUR APPS** — `source: "PandaApps"`
-- **OFFICIAL MINIMA** — `source: "Official"`
-- **MORE** — everything else (desktop `.dmg` / `.exe` builds)
+## Install mechanics
 
-Each app shows its icon, name, version, category, and description, plus a **Download** button
-that links to the entry's `file` URL.
+- **APKs are download-only, by design.** A MiniDapp runs in the MDS webview and **cannot** invoke
+  Android's package installer (native-only). So the Android tab is a bootstrap: tap **Download** →
+  install manually → once you have **PandaApps**, that native app auto-updates the rest.
+- **MiniDapps install directly.** Install = `MDS.file.download(url)` →
+  `MDS.file.getpath("/download/…")` → `mds action:install file:<path> trust:read`. If the store
+  only has read permission, the `mds` command lands in the **Pending** MiniDapp for the user to
+  approve (the UI says so). Cards show **Installed ✓ / Update** by matching the node's `mds` list
+  by dapp name. The official catalog's string-or-array `description` quirk is normalized.
 
-## Download-only, by design
-
-A MiniDapp runs in the MDS webview and **cannot** invoke Android's package installer (that is a
-native-only capability). So this is a bootstrap: tap **Download** → the APK downloads to the
-phone → the user installs it. Once they have **PandaApps**, that native app handles in-app
-install and auto-update for everything else. Because it reads the live `apks.json`, this MiniDapp
-is always current and needs no per-release maintenance.
+All three catalogs are fetched live, so the MiniDapp needs no per-release maintenance.
 
 ## Files
 
