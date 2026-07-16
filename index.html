@@ -334,6 +334,7 @@ function dappCard(dapp) {
     } else {
       btn.className = "btn btn-primary";
       btn.textContent = hasUpdate ? "Update" : "Install";
+      btn.setAttribute("data-label", btn.textContent);
       btn.onclick = function () { installDapp(dapp, btn); };
     }
     c.appendChild(btn);
@@ -358,7 +359,9 @@ function renderDapps(data) {
   host.appendChild(grid);
 }
 
-// Download the .mds.zip via the node, resolve its real path, then `mds action:install`.
+// Download the .mds.zip via the node, then `mds action:install` it. The download response
+// (FILEcommand.java) saves to /Downloads/<name> and returns `path` = the FULL filesystem path —
+// use that directly; fall back to getpath on the returned relative `file` ("/Downloads/…").
 // With read-only MDS permission the command lands in Pending for the user to approve —
 // same flow the PocketWeb store fronts use.
 function installDapp(dapp, btn) {
@@ -367,33 +370,42 @@ function installDapp(dapp, btn) {
   btn.textContent = "Installing…";
   MDS.file.download(dapp.file, function (res) {
     if (!res || res.status === false) { installFail(dapp, btn, "the download failed"); return; }
-    var fname = "";
-    try { fname = res.response.download.file || ""; } catch (e) {}
-    if (!fname) fname = String(dapp.file).split("/").pop().split("?")[0];
-    MDS.file.getpath("/download/" + fname, function (p) {
+    var full = "", rel = "";
+    try {
+      full = res.response.download.path || "";
+      rel  = res.response.download.file || "";
+    } catch (e) {}
+    if (full) { runInstall(dapp, btn, full); return; }
+    if (!rel) rel = "/Downloads/" + String(dapp.file).split("/").pop().split("?")[0];
+    if (rel.charAt(0) !== "/") rel = "/" + rel;
+    MDS.file.getpath(rel, function (p) {
       var path = "";
       try { path = p.response.getpath.path || ""; } catch (e) {}
       if (!p || p.status === false || !path) { installFail(dapp, btn, "couldn't locate the downloaded file"); return; }
-      MDS.cmd("mds action:install file:" + path + " trust:read", function (r) {
-        if (r && r.pending) {
-          btn.textContent = "Pending…";
-          toast(dapp.name + " sent to Pending — approve it in the Pending MiniDapp, then it appears in your MiniHub.", true);
-        } else if (r && r.status) {
-          btn.textContent = "Installed";
-          btn.className = "btn btn-quiet";
-          if (installed) installed[String(dapp.name || "").toLowerCase()] = String(dapp.version || "");
-          toast(dapp.name + " installed — it's now in your MiniHub.", true);
-        } else {
-          installFail(dapp, btn, (r && (r.error || r.message)) || "the install failed");
-        }
-      });
+      runInstall(dapp, btn, path);
     });
+  });
+}
+
+function runInstall(dapp, btn, path) {
+  MDS.cmd("mds action:install file:" + path + " trust:read", function (r) {
+    if (r && r.pending) {
+      btn.textContent = "Pending…";
+      toast(dapp.name + " sent to Pending — approve it in the Pending MiniDapp, then it appears in your MiniHub.", true);
+    } else if (r && r.status) {
+      btn.textContent = "Installed";
+      btn.className = "btn btn-quiet";
+      if (installed) installed[String(dapp.name || "").toLowerCase()] = String(dapp.version || "");
+      toast(dapp.name + " installed — it's now in your MiniHub.", true);
+    } else {
+      installFail(dapp, btn, (r && (r.error || r.message)) || "the install failed");
+    }
   });
 }
 
 function installFail(dapp, btn, why) {
   btn.disabled = false;
-  btn.textContent = "Install";
+  btn.textContent = btn.getAttribute("data-label") || "Install";
   toast("Couldn't install " + dapp.name + " — " + why + ". Try again.", false);
 }
 
