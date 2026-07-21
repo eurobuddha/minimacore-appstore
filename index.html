@@ -122,7 +122,7 @@
 // ─── Sources ─────────────────────────────────────────────────────────────────
 // "apk"  → the SAME apks.json the native PandaApps store reads (Download buttons).
 // "mds"  → MiniDapp catalogs; these install DIRECTLY onto this node via `mds action:install`.
-var SOURCE_ORDER = ["apps", "panda", "official"];
+var SOURCE_ORDER = ["apps", "panda", "official", "ipfs"];
 var SOURCES = {
   apps: {
     label: "Android Apps", type: "apk",
@@ -143,8 +143,26 @@ var SOURCES = {
     note: "<b>Official Minima MiniDapps, installed straight onto this node.</b> Tap <b>Install</b> — your node " +
           "downloads the dapp and it appears in your MiniHub. If Minima asks, approve the command in the " +
           "<b>Pending</b> MiniDapp."
+  },
+  // IPFS redundant mirror — all three catalogs served over IPFS, own gateway first,
+  // public gateway fallback, so the store still works if eurobuddha.com is unreachable.
+  ipfs: {
+    label: "IPFS Mirror", type: "ipfs",
+    note: "<b>The same catalogs, served over IPFS — a censorship-resistant backup that keeps working even if " +
+          "eurobuddha.com is down.</b> Tries your node's own IPFS gateway first, then a public gateway. " +
+          "Android APKs download to your phone; MiniDapps install straight onto this node."
   }
 };
+
+// IPFS mirror: try the Pi's own gateway first (fast, DNSLink instant), then a public
+// gateway (survives a Pi/home-line outage). Whichever answers, its base is prepended to
+// the catalog's relative file/icon paths so downloads pull from that same gateway.
+var IPFS_BASES = ["https://ipfs.eurobuddha.com/", "https://ipfs.io/ipns/ipfs.eurobuddha.com/"];
+var IPFS_CATALOGS = [
+  { kind: "apk", path: "apks/apks.json",         title: "Android APKs" },
+  { kind: "mds", path: "pandadapps.json",        title: "PandaDapps" },
+  { kind: "mds", path: "store/minimadapps.json", title: "Minima Official" }
+];
 
 // Groups for the APK tab, in the same order/labels as the native PandaApps app (MainActivity.render).
 var GROUPS = [
@@ -208,6 +226,7 @@ function load() {
   el("loading").style.display = "block";
   var src = SOURCES[current];
   var forId = current;
+  if (src.type === "ipfs") { loadIpfs(forId); return; }
   MDS.net.GET(src.url, function (res) {
     var data = netBody(res);
     if (!data) { if (forId === current) showError("Could not reach the catalog (network)."); return; }
@@ -219,8 +238,101 @@ function load() {
 function render() {
   el("loading").style.display = "none";
   el("error").style.display = "none";
-  if (SOURCES[current].type === "apk") renderApks(cache[current]);
+  var t = SOURCES[current].type;
+  if (t === "apk") renderApks(cache[current]);
+  else if (t === "ipfs") renderIpfs(cache[current]);
   else renderDapps(cache[current]);
+}
+
+// ─── IPFS mirror tab (all three catalogs, gateway-fallback, base-resolved) ───
+// Make a relative catalog path absolute against the gateway that served it. Entries
+// that are already absolute (rare — the snapshot is self-contained) are left untouched.
+function absUrl(base, u) {
+  if (!u) return u;
+  if (/^https?:\/\//i.test(u)) return u;
+  return base + String(u).replace(/^\//, "");
+}
+
+// Fetch one catalog, trying each gateway in turn; cb(data, base) on success, cb(null) if all fail.
+function ipfsGet(path, cb) {
+  var bases = IPFS_BASES.slice();
+  (function next() {
+    if (!bases.length) { cb(null); return; }
+    var base = bases.shift();
+    MDS.net.GET(base + path, function (res) {
+      var data = netBody(res);
+      if (!data) { next(); return; }   // network error or non-JSON → try next gateway
+      cb(data, base);
+    });
+  })();
+}
+
+function loadIpfs(forId) {
+  el("loading").style.display = "block";
+  var results = new Array(IPFS_CATALOGS.length);
+  var done = 0;
+  IPFS_CATALOGS.forEach(function (cat, idx) {
+    ipfsGet(cat.path, function (data, base) {
+      results[idx] = { cat: cat, data: data, base: base };
+      if (++done === IPFS_CATALOGS.length && forId === current) {
+        cache[forId] = results;
+        renderIpfs(results);
+      }
+    });
+  });
+}
+
+function renderIpfs(results) {
+  el("loading").style.display = "none";
+  el("error").style.display = "none";
+  var host = el("groups");
+  host.innerHTML = "";
+  var any = false;
+
+  results.forEach(function (r) {
+    var head = document.createElement("h2");
+    head.textContent = r.cat.title;
+    host.appendChild(head);
+
+    if (!r || !r.data) {
+      var e = document.createElement("div");
+      e.className = "desc";
+      e.style.padding = "2px 2px 10px";
+      e.textContent = "Couldn't reach this catalog over IPFS right now.";
+      host.appendChild(e);
+      return;
+    }
+    any = true;
+
+    if (r.cat.kind === "apk") {
+      var apps = (r.data && Array.isArray(r.data.apps)) ? r.data.apps : [];
+      apps.forEach(function (a) { a.file = absUrl(r.base, a.file); a.icon = absUrl(r.base, a.icon); });
+      GROUPS.forEach(function (g) {
+        var members = apps.filter(function (a) { return g.match(a.source || ""); });
+        if (!members.length) return;
+        var sub = document.createElement("h2");
+        sub.textContent = g.title;
+        sub.style.fontSize = "10px";
+        sub.style.opacity = ".75";
+        sub.style.margin = "16px 0 9px";
+        host.appendChild(sub);
+        var grid = document.createElement("div"); grid.className = "cards";
+        members.forEach(function (a) { grid.appendChild(apkCard(a)); });
+        host.appendChild(grid);
+      });
+    } else {
+      var dapps = (r.data && Array.isArray(r.data.dapps)) ? r.data.dapps : [];
+      dapps.forEach(function (d) { d.file = absUrl(r.base, d.file); d.icon = absUrl(r.base, d.icon); });
+      var sorted = dapps.slice().sort(function (a, b) {
+        return String(a.name || "").toLowerCase().localeCompare(String(b.name || "").toLowerCase());
+      });
+      var grid = document.createElement("div"); grid.className = "cards";
+      sorted.forEach(function (d) { grid.appendChild(dappCard(d)); });
+      host.appendChild(grid);
+    }
+  });
+
+  if (!any) showError("Could not reach the IPFS mirror (all gateways failed).");
 }
 
 function showError(extra) {
