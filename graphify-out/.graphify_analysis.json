@@ -1,0 +1,65 @@
+{
+  "communities": {
+    "0": [
+      "mds",
+      "mds_base64toarraybuffer",
+      "mds_base64tohex",
+      "mds_getstatevariable",
+      "mds_hextobase64",
+      "mds_recurseuploadmds"
+    ],
+    "1": [
+      "mds_httppostasync",
+      "mds_httppostasyncpoll",
+      "mds_mdspostmessage",
+      "mds_polllistener",
+      "mds_postmdsfail"
+    ],
+    "2": [
+      "build",
+      "build_sh__entry"
+    ]
+  },
+  "cohesion": {
+    "0": 0.3333333333333333,
+    "1": 0.5,
+    "2": 1.0
+  },
+  "gods": [
+    {
+      "id": "mds_postmdsfail",
+      "label": "postMDSFail()",
+      "degree": 4
+    },
+    {
+      "id": "mds_mdspostmessage",
+      "label": "MDSPostMessage()",
+      "degree": 3
+    },
+    {
+      "id": "mds_polllistener",
+      "label": "PollListener()",
+      "degree": 3
+    },
+    {
+      "id": "mds_httppostasyncpoll",
+      "label": "httpPostAsyncPoll()",
+      "degree": 3
+    },
+    {
+      "id": "mds_httppostasync",
+      "label": "httpPostAsync()",
+      "degree": 2
+    },
+    {
+      "id": "build_sh__entry",
+      "label": "build.sh script",
+      "degree": 1
+    }
+  ],
+  "surprises": [],
+  "tokens": {
+    "input": 0,
+    "output": 0
+  }
+}

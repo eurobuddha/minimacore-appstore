@@ -1,0 +1,330 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    {
+      "label": "build.sh",
+      "file_type": "code",
+      "source_file": "build.sh",
+      "source_location": "L1",
+      "metadata": {
+        "language": "bash",
+        "kind": "file"
+      },
+      "_origin": "ast",
+      "id": "build",
+      "community": 2,
+      "norm_label": "build.sh"
+    },
+    {
+      "label": "build.sh script",
+      "file_type": "code",
+      "source_file": "build.sh",
+      "source_location": "L1",
+      "metadata": {
+        "language": "bash",
+        "kind": "bash_entrypoint"
+      },
+      "_origin": "ast",
+      "id": "build_sh__entry",
+      "community": 2,
+      "norm_label": "build.sh script"
+    },
+    {
+      "label": "mds.js",
+      "file_type": "code",
+      "source_file": "mds.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "mds",
+      "community": 0,
+      "norm_label": "mds.js"
+    },
+    {
+      "label": "hexToBase64()",
+      "file_type": "code",
+      "source_file": "mds.js",
+      "source_location": "L520",
+      "_origin": "ast",
+      "id": "mds_hextobase64",
+      "community": 0,
+      "norm_label": "hextobase64()"
+    },
+    {
+      "label": "base64ToHex()",
+      "file_type": "code",
+      "source_file": "mds.js",
+      "source_location": "L533",
+      "_origin": "ast",
+      "id": "mds_base64tohex",
+      "community": 0,
+      "norm_label": "base64tohex()"
+    },
+    {
+      "label": "base64ToArrayBuffer()",
+      "file_type": "code",
+      "source_file": "mds.js",
+      "source_location": "L544",
+      "_origin": "ast",
+      "id": "mds_base64toarraybuffer",
+      "community": 0,
+      "norm_label": "base64toarraybuffer()"
+    },
+    {
+      "label": "getStateVariable()",
+      "file_type": "code",
+      "source_file": "mds.js",
+      "source_location": "L555",
+      "_origin": "ast",
+      "id": "mds_getstatevariable",
+      "community": 0,
+      "norm_label": "getstatevariable()"
+    },
+    {
+      "label": "MDSPostMessage()",
+      "file_type": "code",
+      "source_file": "mds.js",
+      "source_location": "L575",
+      "_origin": "ast",
+      "id": "mds_mdspostmessage",
+      "community": 1,
+      "norm_label": "mdspostmessage()"
+    },
+    {
+      "label": "PollListener()",
+      "file_type": "code",
+      "source_file": "mds.js",
+      "source_location": "L624",
+      "_origin": "ast",
+      "id": "mds_polllistener",
+      "community": 1,
+      "norm_label": "polllistener()"
+    },
+    {
+      "label": "postMDSFail()",
+      "file_type": "code",
+      "source_file": "mds.js",
+      "source_location": "L662",
+      "_origin": "ast",
+      "id": "mds_postmdsfail",
+      "community": 1,
+      "norm_label": "postmdsfail()"
+    },
+    {
+      "label": "httpPostAsync()",
+      "file_type": "code",
+      "source_file": "mds.js",
+      "source_location": "L688",
+      "_origin": "ast",
+      "id": "mds_httppostasync",
+      "community": 1,
+      "norm_label": "httppostasync()"
+    },
+    {
+      "label": "httpPostAsyncPoll()",
+      "file_type": "code",
+      "source_file": "mds.js",
+      "source_location": "L732",
+      "_origin": "ast",
+      "id": "mds_httppostasyncpoll",
+      "community": 1,
+      "norm_label": "httppostasyncpoll()"
+    },
+    {
+      "label": "_recurseUploadMDS()",
+      "file_type": "code",
+      "source_file": "mds.js",
+      "source_location": "L772",
+      "_origin": "ast",
+      "id": "mds_recurseuploadmds",
+      "community": 0,
+      "norm_label": "_recurseuploadmds()"
+    }
+  ],
+  "links": [
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "build.sh",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "build",
+      "target": "build_sh__entry",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "mds.js",
+      "source_location": "L544",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "mds",
+      "target": "mds_base64toarraybuffer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "mds.js",
+      "source_location": "L533",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "mds",
+      "target": "mds_base64tohex",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "mds.js",
+      "source_location": "L555",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "mds",
+      "target": "mds_getstatevariable",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "mds.js",
+      "source_location": "L520",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "mds",
+      "target": "mds_hextobase64",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "mds.js",
+      "source_location": "L688",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "mds",
+      "target": "mds_httppostasync",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "mds.js",
+      "source_location": "L732",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "mds",
+      "target": "mds_httppostasyncpoll",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "mds.js",
+      "source_location": "L575",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "mds",
+      "target": "mds_mdspostmessage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "mds.js",
+      "source_location": "L624",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "mds",
+      "target": "mds_polllistener",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "mds.js",
+      "source_location": "L662",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "mds",
+      "target": "mds_postmdsfail",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "mds.js",
+      "source_location": "L772",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "mds",
+      "target": "mds_recurseuploadmds",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "mds.js",
+      "source_location": "L655",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "mds_polllistener",
+      "target": "mds_mdspostmessage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "mds.js",
+      "source_location": "L677",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "mds_postmdsfail",
+      "target": "mds_mdspostmessage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "mds.js",
+      "source_location": "L630",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "mds_polllistener",
+      "target": "mds_httppostasyncpoll",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "mds.js",
+      "source_location": "L717",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "mds_httppostasync",
+      "target": "mds_postmdsfail",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "mds.js",
+      "source_location": "L756",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "mds_httppostasyncpoll",
+      "target": "mds_postmdsfail",
+      "confidence_score": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "built_at_commit": "f5a3592882ad54e5394c5cd5391786a589110bd1"
+}
