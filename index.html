@@ -5,11 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>minimaCore App Store</title>
 <style>
-  /* Dark "panda" theme — mirrors the native PandaApps store + the PandaDapps landing page. */
+  /* Exact PandaApps (Android) theme — Theme.java palette, Ui.java shapes: 1.5px borders,
+     10px cards / 7px buttons / 4px badges, no shadows anywhere. */
   :root{
-    --bg:#0b0b0f; --panel:#14141b; --panel2:#1b1b24; --border:#2a2a36;
-    --text:#ececef; --dim:#9a9aa8; --accent:#f7931a; --accent-dim:#3a2c12;
-    --amber:#e0a93a; --amber-bg:#241d0d; --green:#2ecc71;
+    --bg:#0E1116; --panel:#171C23; --panel2:#1F262F; --border:#2A323D;
+    --accent:#F9A03F; --green:#36C28B; --dim:#8B97A6; --text:#ECEFF3; --on-accent:#0E1116;
+    --amber:#E0A93A; --amber-fill:rgba(224,169,58,.133); --error:#E0574A;
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{background:var(--bg)}
@@ -19,100 +20,178 @@
     line-height:1.5; -webkit-font-smoothing:antialiased;
   }
   a{color:inherit}
-  .wrap{max-width:900px; margin:0 auto; padding:22px 16px 56px}
+  button{font-family:inherit}
+  .wrap{max-width:760px; margin:0 auto; padding:0 0 56px}
 
-  header{display:flex; align-items:center; gap:13px; padding:6px 0 2px}
-  .mark{width:44px; height:44px; border-radius:11px; flex:0 0 44px; object-fit:cover; background:var(--panel2)}
-  h1{font-size:22px; font-weight:700; letter-spacing:-.01em}
-  .sub{color:var(--dim); font-size:13.5px; margin-top:2px}
+  /* ── Header bars (MainActivity / AppDetailActivity chrome) ─────────────── */
+  .bar{background:var(--panel); display:flex; align-items:center; padding:12px 16px; gap:12px}
+  .bar .titles{flex:1; min-width:0}
+  .bar h1{font-size:20px; font-weight:700; color:var(--accent); letter-spacing:-.01em; line-height:1.25}
+  .bar .sub{color:var(--dim); font-size:12px; margin-top:2px}
+  .bar .refresh{
+    background:var(--accent); color:var(--on-accent); border:none; border-radius:7px;
+    font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.02em;
+    padding:8px 14px; cursor:pointer;
+  }
+  .bar .back{
+    background:none; border:none; color:var(--accent); font-size:26px; line-height:1;
+    padding:2px 14px 6px 6px; cursor:pointer;
+  }
+  .bar .dtitle{font-size:17px; font-weight:700; color:var(--text);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 
-  /* Store tabs — Android APKs vs the two MiniDapp catalogs. */
-  .tabs{display:flex; gap:8px; margin:16px 0 0; flex-wrap:wrap}
+  /* ── Tabs ──────────────────────────────────────────────────────────────── */
+  .tabs{display:flex; gap:8px; padding:12px 14px 0; flex-wrap:wrap}
   .tab{
-    background:var(--panel); color:var(--dim); border:1px solid var(--border);
-    border-radius:100px; padding:8px 16px; font-size:13px; font-weight:700; cursor:pointer;
+    background:var(--panel); color:var(--dim); border:1.5px solid var(--border);
+    border-radius:7px; padding:7px 14px; font-size:12px; font-weight:700; cursor:pointer;
   }
-  .tab.active{background:var(--accent); color:#111; border-color:var(--accent)}
+  .tab.active{background:var(--accent); color:var(--on-accent); border-color:var(--accent)}
 
+  .pad{padding:14px}
+
+  /* ── Amber callouts (MainActivity.disclaimerBanner recipe) ─────────────── */
   .disclaimer{
-    background:var(--amber-bg); border:1px solid var(--amber);
-    border-radius:12px; padding:13px 15px; margin:18px 0 6px; font-size:13px; color:#f4e6c6;
+    background:var(--amber-fill); border:1.5px solid var(--amber); border-radius:10px;
+    padding:12px; margin-bottom:4px; font-size:12px; color:var(--text);
   }
-
-  .note{background:var(--panel); border:1px solid var(--border); border-radius:12px;
-    padding:13px 15px; font-size:13px; color:var(--dim); margin:14px 0 4px}
+  .note{color:var(--dim); font-size:12px; padding:10px 2px 2px}
   .note b{color:var(--text)}
 
-  h2{font-size:11.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--dim);
-     margin:30px 0 11px; font-weight:700}
+  /* ── Group headings (MainActivity.heading) ─────────────────────────────── */
+  .ghead{font-size:11px; font-weight:700; color:var(--dim); text-transform:uppercase;
+    letter-spacing:.12em; padding:18px 0 8px 2px}
 
-  .cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px}
-  .card{
-    background:var(--panel); border:1px solid var(--border); border-radius:14px;
-    padding:15px; display:flex; flex-direction:column; gap:9px;
+  /* ── App rows (MainActivity.row / Ui.card) ─────────────────────────────── */
+  .row{
+    display:flex; align-items:center; width:100%; text-align:left;
+    background:var(--panel); border:1.5px solid var(--border); border-radius:10px;
+    padding:10px; margin-bottom:10px; cursor:pointer; gap:0;
   }
-  .card .top{display:flex; align-items:flex-start; gap:12px}
-  .card img.ico,.card .ph{width:52px; height:52px; border-radius:12px; flex:0 0 52px;
-     background:var(--panel2); object-fit:cover}
-  .card .ph{display:flex; align-items:center; justify-content:center; font-size:23px; color:var(--dim)}
-  .card .name{font-weight:700; font-size:15px; line-height:1.25}
-  .card .ver{color:var(--dim); font-size:12px; font-variant-numeric:tabular-nums}
-  .card .cat{color:var(--dim); font-size:11px; margin-top:2px; text-transform:uppercase; letter-spacing:.05em}
-  .card .desc{color:var(--dim); font-size:12.5px}
-  .card .state{color:var(--green); font-size:11px; font-weight:700}
-  .btn{
-    display:inline-block; text-align:center; text-decoration:none; font-weight:700; font-size:13px;
-    border-radius:9px; padding:10px 14px; cursor:pointer; border:1px solid transparent; margin-top:2px;
+  .row:active{background:var(--panel2)}
+  .row img.ico,.row .ph{width:44px; height:44px; flex:0 0 44px; margin-right:12px;
+    border-radius:8px; object-fit:cover; background:var(--panel2)}
+  .row .ph{display:flex; align-items:center; justify-content:center; font-size:20px; color:var(--dim)}
+  .row .mid{flex:1; min-width:0}
+  .row .name{font-size:15px; font-weight:700; color:var(--text);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .row .state{font-size:11px; color:var(--dim); padding-top:3px}
+  .row .state.ok{color:var(--green)}
+  .row .state.warn{color:var(--amber)}
+  .row .state.err{color:var(--error)}
+  .chip{
+    background:var(--accent); color:var(--on-accent); border-radius:4px;
+    font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.08em;
+    padding:3px 7px; margin-left:8px; flex:0 0 auto;
   }
-  .btn-primary{background:var(--accent); color:#111}
-  .btn-quiet{background:var(--panel2); color:var(--dim); border-color:var(--border); cursor:default}
-  .btn[disabled]{opacity:.55; cursor:default}
+  .chev{color:var(--dim); font-size:20px; padding-left:10px; padding-bottom:2px; flex:0 0 auto}
 
-  #loading{color:var(--dim); font-size:13.5px; padding:18px 2px}
-  #error{display:none; color:#f4c6c6; background:#2a1416; border:1px solid #7a2a2a;
-    border-radius:12px; padding:13px 15px; margin:16px 0; font-size:13px}
+  /* Footer "About this store" row */
+  .foot{padding:12px; margin-top:18px; margin-bottom:0}
+  .foot .name{font-size:13px}
+  .foot .state{font-size:11px; padding-top:2px}
+
+  /* ── Detail view (AppDetailActivity) ───────────────────────────────────── */
+  .dpad{padding:16px}
+  .hero{display:flex; align-items:center}
+  .hero img.ico,.hero .ph{width:72px; height:72px; flex:0 0 72px; margin-right:14px;
+    border-radius:12px; object-fit:cover; background:var(--panel2)}
+  .hero .ph{display:flex; align-items:center; justify-content:center; font-size:30px; color:var(--dim)}
+  .hero .hname{font-size:20px; font-weight:700; color:var(--text)}
+  .hero .hver{font-size:12px; color:var(--dim); padding-top:3px}
+  .hero .hsrc{font-size:11px; color:var(--dim); padding-top:2px}
+
+  .abtn{
+    display:block; width:100%; text-align:center; text-decoration:none;
+    background:var(--accent); color:var(--on-accent); border:none; border-radius:7px;
+    font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:.02em;
+    padding:14px 16px; margin-top:18px; cursor:pointer;
+  }
+  .abtn.quiet{background:var(--panel2); color:var(--text)}
+  .abtn[disabled]{opacity:.6; cursor:default}
+  .sbtn{
+    display:block; width:100%; text-align:center; text-decoration:none;
+    background:var(--panel2); color:var(--text); border:none; border-radius:7px;
+    font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.02em;
+    padding:12px 16px; margin-top:12px; cursor:pointer;
+  }
+  .stateline{font-size:12px; color:var(--dim); text-align:center; padding-top:8px}
+  .stateline.ok{color:var(--green)}
+  .stateline.warn{color:var(--amber)}
+  .stateline.err{color:var(--error)}
+
+  .shead{font-size:11px; font-weight:700; color:var(--dim); text-transform:uppercase;
+    letter-spacing:.12em; padding:24px 0 8px}
+  .para{font-size:13px; color:var(--text); line-height:1.45}
+  .vlabel{font-size:12px; font-weight:700; color:var(--accent); padding-bottom:3px}
+  .vnote{padding-top:12px}
+  .vnote:first-of-type{padding-top:2px}
+  .showall{background:none; border:none; color:var(--accent); font-size:12px; font-weight:700;
+    padding:12px 0 0; cursor:pointer}
+
+  .dtable{background:var(--panel); border:1.5px solid var(--border); border-radius:10px;
+    padding:4px 12px}
+  .drow{display:flex; padding:9px 0; align-items:baseline}
+  .drow .k{flex:0 0 84px; font-size:12px; color:var(--dim)}
+  .drow .v{flex:1; font-size:12px; color:var(--text); min-width:0; word-break:break-all}
+  .drow .v.mono{font-family:ui-monospace,Menlo,monospace; font-size:11px}
+  .drow .copy{color:var(--accent); font-size:10px; font-weight:700; padding:4px 4px 4px 10px;
+    cursor:pointer; flex:0 0 auto}
+
+  #loading{color:var(--dim); font-size:12px; padding:12px 2px}
+  #error{display:none; color:var(--error); background:var(--panel);
+    border:1.5px solid var(--border); border-radius:10px; padding:12px; margin:14px 0; font-size:12px}
   #error a{color:var(--accent); font-weight:700; cursor:pointer; text-decoration:underline}
 
-  /* Toast for install feedback (same wording pattern as the PocketWeb store fronts). */
   #toast{
     position:fixed; left:50%; bottom:26px; transform:translateX(-50%);
-    background:var(--panel2); color:var(--text); border:1px solid var(--border);
-    border-radius:12px; padding:12px 18px; font-size:13px; max-width:86%;
-    box-shadow:0 8px 30px rgba(0,0,0,.5); display:none; z-index:50; text-align:center;
+    background:var(--panel2); color:var(--text); border:1.5px solid var(--border);
+    border-radius:10px; padding:12px 18px; font-size:13px; max-width:86%;
+    display:none; z-index:50; text-align:center;
   }
   #toast.ok{border-color:var(--green)}
-  #toast.bad{border-color:#7a2a2a}
+  #toast.bad{border-color:var(--error)}
 
-  footer{margin-top:40px; color:var(--dim); font-size:11.5px; text-align:center; line-height:1.7}
-  footer a{color:var(--dim); text-decoration:underline}
+  footer{margin-top:32px; color:var(--dim); font-size:11px; text-align:center; line-height:1.7;
+    padding:0 14px}
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <header>
-    <img class="mark" src="./favicon.png" alt="">
-    <div>
-      <h1>minimaCore App Store</h1>
-      <div class="sub">Native Android apps &amp; MiniDapps for Minima.</div>
+  <!-- ── List view ─────────────────────────────────────────────────────── -->
+  <div id="listView">
+    <div class="bar">
+      <div class="titles">
+        <h1>minimaCore App Store</h1>
+        <div class="sub" id="subtitle">Native Android apps &amp; MiniDapps for Minima.</div>
+      </div>
+      <button class="refresh" id="refreshBtn">Refresh</button>
     </div>
-  </header>
 
-  <div class="tabs" id="tabs"></div>
+    <div class="tabs" id="tabs"></div>
 
-  <!-- Store-wide disclaimer (populated from the APK catalog's `disclaimer` field; APK tab only). -->
-  <div class="disclaimer" id="disclaimer" style="display:none"></div>
+    <div class="pad">
+      <div class="disclaimer" id="disclaimer" style="display:none"></div>
+      <div class="note" id="note"></div>
+      <div id="loading">Loading…</div>
+      <div id="error"></div>
+      <div id="groups"></div>
+      <footer>
+        minimaCore App Store · native apps + MiniDapps, by eurobuddha<br>
+        Apps are experimental, MIT-licensed, and provided as is — use at your own risk.
+      </footer>
+    </div>
+  </div>
 
-  <div class="note" id="note"></div>
-
-  <div id="loading">Loading…</div>
-  <div id="error"></div>
-  <div id="groups"></div>
-
-  <footer>
-    minimaCore App Store · native apps + MiniDapps, by eurobuddha<br>
-    Apps are experimental, MIT-licensed, and provided as is — use at your own risk.
-  </footer>
+  <!-- ── Detail view ───────────────────────────────────────────────────── -->
+  <div id="detailView" style="display:none">
+    <div class="bar">
+      <button class="back" id="backBtn">‹</button>
+      <div class="dtitle" id="dtitle"></div>
+    </div>
+    <div class="dpad" id="detailBody"></div>
+  </div>
 
 </div>
 <div id="toast"></div>
@@ -127,22 +206,23 @@ var SOURCES = {
   apps: {
     label: "Android Apps", type: "apk",
     url: "https://raw.githubusercontent.com/eurobuddha/minima-core-apks/main/apks.json",
-    note: "<b>Download &amp; install on your Android phone.</b> Tap a <b>Download</b> button — the APK downloads to " +
+    note: "<b>Download &amp; install on your Android phone.</b> Tap an app for details — the APK downloads to " +
           "your device; open it to install (allow installs from your browser if Android asks). Grab " +
           "<b>PandaApps</b> first and it will install &amp; auto-update all the others for you."
   },
   panda: {
     label: "PandaDapps", type: "mds",
     url: "https://eurobuddha.com/pandadapps.json",
-    note: "<b>MiniDapps install straight onto this node.</b> Tap <b>Install</b> — your node downloads the dapp " +
-          "and it appears in your MiniHub. If Minima asks, approve the command in the <b>Pending</b> MiniDapp."
+    note: "<b>MiniDapps install straight onto this node.</b> Open a dapp and tap <b>Install</b> — your node " +
+          "downloads it and it appears in your MiniHub. If Minima asks, approve the command in the " +
+          "<b>Pending</b> MiniDapp."
   },
   official: {
     label: "Minima Dapps", type: "mds",
     url: "https://eurobuddha.com/store/minimadapps.json",
-    note: "<b>Official Minima MiniDapps, installed straight onto this node.</b> Tap <b>Install</b> — your node " +
-          "downloads the dapp and it appears in your MiniHub. If Minima asks, approve the command in the " +
-          "<b>Pending</b> MiniDapp."
+    note: "<b>Official Minima MiniDapps, installed straight onto this node.</b> Open a dapp and tap " +
+          "<b>Install</b> — your node downloads it and it appears in your MiniHub. If Minima asks, approve " +
+          "the command in the <b>Pending</b> MiniDapp."
   },
   // IPFS redundant mirror — all three catalogs served over IPFS, own gateway first,
   // public gateway fallback, so the store still works if eurobuddha.com is unreachable.
@@ -154,9 +234,6 @@ var SOURCES = {
   }
 };
 
-// IPFS mirror: try the Pi's own gateway first (fast, DNSLink instant), then a public
-// gateway (survives a Pi/home-line outage). Whichever answers, its base is prepended to
-// the catalog's relative file/icon paths so downloads pull from that same gateway.
 var IPFS_BASES = ["https://ipfs.eurobuddha.com/", "https://ipfs.io/ipns/ipfs.eurobuddha.com/"];
 var IPFS_CATALOGS = [
   { kind: "apk", path: "apks/apks.json",         title: "Android APKs" },
@@ -164,17 +241,30 @@ var IPFS_CATALOGS = [
   { kind: "mds", path: "store/minimadapps.json", title: "Minima Official" }
 ];
 
-// Groups for the APK tab, in the same order/labels as the native PandaApps app (MainActivity.render).
-var GROUPS = [
-  { title: "YOUR APPS",       match: function (s) { return s === "PandaApps"; } },
-  { title: "OFFICIAL MINIMA", match: function (s) { return s === "Official"; } },
-  { title: "MORE",            match: function (s) { return s !== "PandaApps" && s !== "Official"; } }
-];
+// ─── Groups — ported verbatim from the native store's Groups.java ────────────
+var GROUP_ORDER = ["GET STARTED", "WALLETS", "FINANCE & TRADING", "SHOP & SELL", "SOCIAL",
+                   "GAMES", "TOOLS", "DEVELOPER", "DESKTOP", "MORE"];
+var CAT_GROUP = {
+  core: "GET STARTED", store: "GET STARTED",
+  wallet: "WALLETS", finance: "FINANCE & TRADING", shopping: "SHOP & SELL",
+  social: "SOCIAL", games: "GAMES",
+  tools: "TOOLS", utilities: "TOOLS", security: "TOOLS",
+  developer: "DEVELOPER", desktop: "DESKTOP"
+};
+function groupFor(item) {
+  return CAT_GROUP[String(item.category || "").trim().toLowerCase()] || "MORE";
+}
+
+// The store's own catalog entry becomes a quiet footer row instead of a group row.
+var SELF_NAME = "minimacore app store";
 
 var current = "apps";
 var cache = {};            // source id -> parsed catalog
 var installed = null;      // lowercase dapp name -> installed version (from `mds`)
+var busy = {};             // lowercase dapp name -> "installing" | "pending"
+var expanded = {};         // detail "show all versions" state, keyed by route
 var toastTimer = null;
+var ready = false;         // MDS inited — hash routing no-ops before this
 
 function el(id) { return document.getElementById(id); }
 
@@ -189,7 +279,15 @@ function netBody(res) {
   return (b && typeof b === "object") ? b : null;
 }
 
-function ph(ch) { var d = document.createElement("div"); d.className = "ph"; d.textContent = ch || "◈"; return d; }
+function ph(size) {
+  var d = document.createElement("div"); d.className = "ph"; d.textContent = "◈"; return d;
+}
+function iconEl(item) {
+  if (!item.icon) return ph();
+  var img = document.createElement("img"); img.className = "ico"; img.src = item.icon; img.alt = "";
+  img.onerror = function () { img.replaceWith(ph()); };
+  return img;
+}
 
 function toast(msg, ok) {
   var t = el("toast");
@@ -200,20 +298,86 @@ function toast(msg, ok) {
   toastTimer = setTimeout(function () { t.style.display = "none"; }, 5000);
 }
 
-// ─── Tabs ────────────────────────────────────────────────────────────────────
-function buildTabs() {
-  var host = el("tabs");
-  host.innerHTML = "";
-  SOURCE_ORDER.forEach(function (id) {
-    var b = document.createElement("button");
-    b.className = "tab" + (id === current ? " active" : "");
-    b.textContent = SOURCES[id].label;
-    b.onclick = function () { if (current !== id) { current = id; buildTabs(); show(); } };
-    host.appendChild(b);
-  });
+function copyText(s) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(s).then(function () { toast("Copied.", true); },
+                                          function () { fallbackCopy(s); });
+  } else fallbackCopy(s);
+}
+function fallbackCopy(s) {
+  var ta = document.createElement("textarea");
+  ta.value = s; document.body.appendChild(ta); ta.select();
+  try { document.execCommand("copy"); toast("Copied.", true); }
+  catch (e) { toast("Couldn't copy.", false); }
+  document.body.removeChild(ta);
 }
 
-function show() {
+// ─── Catalog helpers ─────────────────────────────────────────────────────────
+function itemsOf(id) {
+  var data = cache[id];
+  if (!data) return [];
+  if (SOURCES[id].type === "apk") return (data && Array.isArray(data.apps)) ? data.apps : [];
+  return Array.isArray(data) ? data : ((data && Array.isArray(data.dapps)) ? data.dapps : []);
+}
+
+// The official minimadapps.json sometimes has `description` as an ARRAY of strings — normalize.
+function descText(d) {
+  if (Array.isArray(d)) d = d.join(" ");
+  return d ? String(d) : "";
+}
+
+function verCmp(a, b) {   // 1 if a>b, -1 if a<b, 0 equal — numeric dotted compare
+  var pa = String(a || "0").split("."), pb = String(b || "0").split(".");
+  var n = Math.max(pa.length, pb.length);
+  for (var i = 0; i < n; i++) {
+    var x = parseInt(pa[i] || "0", 10) || 0, y = parseInt(pb[i] || "0", 10) || 0;
+    if (x !== y) return x > y ? 1 : -1;
+  }
+  return 0;
+}
+
+function installedVer(item) {
+  return installed ? installed[String(item.name || "").toLowerCase()] : undefined;
+}
+function hasUpdate(item) {
+  var have = installedVer(item);
+  return have !== undefined && item.version && verCmp(item.version, have) > 0;
+}
+
+// Split a changelog-style description into lead + [{version,text}] — the native
+// store's Blurb.parse(), same marker regex.
+function blurbParse(desc) {
+  var s = descText(desc).trim();
+  var re = /\bv(\d+\.\d+(?:\.\d+)?):\s*/g;
+  var lead = s, notes = [], m, marks = [];
+  while ((m = re.exec(s)) !== null) marks.push({ idx: m.index, end: re.lastIndex, ver: m[1] });
+  if (marks.length) {
+    lead = s.slice(0, marks[0].idx).trim();
+    for (var i = 0; i < marks.length; i++) {
+      var endTxt = (i + 1 < marks.length) ? marks[i + 1].idx : s.length;
+      notes.push({ version: marks[i].ver, text: s.slice(marks[i].end, endTxt).trim() });
+    }
+  }
+  return { lead: lead, notes: notes };
+}
+
+// ─── Hash routing ────────────────────────────────────────────────────────────
+// "#/<tab>" = list; "#/<tab>/<idx>" = detail; IPFS detail = "#/ipfs/<section>-<idx>".
+function route() {
+  if (!ready) return;
+  var h = (location.hash || "").replace(/^#\/?/, "");
+  var parts = h.split("/");
+  var tab = parts[0] && SOURCES[parts[0]] ? parts[0] : "apps";
+  if (tab !== current) { current = tab; buildTabs(); }
+  if (parts.length > 1 && parts[1] !== "") showDetail(parts[1]);
+  else { showList(); }
+}
+function goList(tab) { location.hash = "#/" + tab; }
+function goDetail(tab, key) { location.hash = "#/" + tab + "/" + key; }
+
+function showList() {
+  el("detailView").style.display = "none";
+  el("listView").style.display = "block";
   el("error").style.display = "none";
   el("groups").innerHTML = "";
   el("note").innerHTML = SOURCES[current].note;
@@ -231,7 +395,7 @@ function load() {
     var data = netBody(res);
     if (!data) { if (forId === current) showError("Could not reach the catalog (network)."); return; }
     cache[forId] = data;
-    if (forId === current) render();
+    if (forId === current) route();   // re-route: a cold load on a detail hash lands on the detail
   });
 }
 
@@ -239,21 +403,167 @@ function render() {
   el("loading").style.display = "none";
   el("error").style.display = "none";
   var t = SOURCES[current].type;
-  if (t === "apk") renderApks(cache[current]);
+  if (t === "apk") renderApks();
   else if (t === "ipfs") renderIpfs(cache[current]);
-  else renderDapps(cache[current]);
+  else renderDapps();
+}
+
+function showError(extra) {
+  el("loading").style.display = "none";
+  var e = el("error");
+  e.innerHTML = (extra ? (extra + " ") : "Could not load the catalog. ") + '<a id="retry">Try again</a>.';
+  e.style.display = "block";
+  var r = document.getElementById("retry");
+  if (r) r.onclick = function () { delete cache[current]; showList(); };
+}
+
+// ─── Tabs / header ───────────────────────────────────────────────────────────
+function buildTabs() {
+  var host = el("tabs");
+  host.innerHTML = "";
+  SOURCE_ORDER.forEach(function (id) {
+    var b = document.createElement("button");
+    b.className = "tab" + (id === current ? " active" : "");
+    b.textContent = SOURCES[id].label;
+    b.onclick = function () { if (current !== id) goList(id); };
+    host.appendChild(b);
+  });
+}
+
+function setSubtitle(count, updates) {
+  el("subtitle").textContent = count + " apps" +
+    (updates ? ("  ·  " + updates + (updates === 1 ? " update" : " updates")) : "");
+}
+
+// ─── Rows (native row() anatomy: icon · name/state · chip · chevron) ─────────
+function rowEl(item, opts) {
+  // opts: {kind, stateText, stateClass, chip, footer, onOpen}
+  var r = document.createElement("div");
+  r.className = "row" + (opts.footer ? " foot" : "");
+  if (!opts.footer) r.appendChild(iconEl(item));
+  var mid = document.createElement("div"); mid.className = "mid";
+  var nm = document.createElement("div"); nm.className = "name";
+  nm.textContent = opts.footer ? "About this store" : (item.name || "App");
+  mid.appendChild(nm);
+  var st = document.createElement("div");
+  st.className = "state" + (opts.stateClass ? (" " + opts.stateClass) : "");
+  st.textContent = opts.footer ? ((item.name || "") + " v" + (item.version || "")) : (opts.stateText || "");
+  mid.appendChild(st);
+  r.appendChild(mid);
+  if (opts.chip) {
+    var c = document.createElement("span"); c.className = "chip"; c.textContent = opts.chip;
+    r.appendChild(c);
+  }
+  var ch = document.createElement("span"); ch.className = "chev"; ch.textContent = "›";
+  r.appendChild(ch);
+  r.onclick = opts.onOpen;
+  return r;
+}
+
+// State line for a MiniDapp row — mirrors MainActivity.bindRow's ladder.
+function dappRowState(item, inUpdates) {
+  var name = String(item.name || "").toLowerCase();
+  if (busy[name] === "installing") return { text: "Installing…", cls: "", chip: "…" };
+  if (busy[name] === "pending")    return { text: "Waiting in Pending — approve it there", cls: "warn", chip: "ACTION" };
+  var have = installedVer(item);
+  if (have !== undefined && hasUpdate(item)) {
+    if (inUpdates) return { text: "v" + have + "  →  v" + item.version, cls: "", chip: "UPDATE" };
+    return { text: "Installed v" + have + "  ·  update available", cls: "", chip: "UPDATE" };
+  }
+  if (have !== undefined) return { text: "Installed  ·  up to date", cls: "ok", chip: "" };
+  return { text: "Not installed", cls: "", chip: "" };
+}
+
+// APK rows carry no install state inside a webview — show publisher, like the
+// native store's non-APK branch.
+function apkRowState(item) {
+  return { text: item.source || "Download", cls: "", chip: "" };
+}
+
+function listRow(item, tab, key, inUpdates) {
+  var kind = SOURCES[tab].type === "apk" ? "apk" : "mds";
+  var s = (kind === "apk") ? apkRowState(item) : dappRowState(item, inUpdates);
+  return rowEl(item, {
+    stateText: s.text, stateClass: s.cls, chip: s.chip,
+    onOpen: function () { goDetail(tab, key); }
+  });
+}
+
+// ─── Grouped list renderers ──────────────────────────────────────────────────
+// One pipeline for every tab: UPDATES first (dapp tabs), then GROUP_ORDER with
+// empty groups skipped, catalog order within a group — MainActivity.render().
+function renderGrouped(host, items, tab, keyOf, withUpdates) {
+  var selfItem = null, selfKey = null;
+  var rest = [], restKeys = [];
+  items.forEach(function (it, i) {
+    if (tab === "panda" && String(it.name || "").toLowerCase() === SELF_NAME) {
+      selfItem = it; selfKey = keyOf(i);
+    } else { rest.push(it); restKeys.push(keyOf(i)); }
+  });
+
+  var updates = [];
+  if (withUpdates) items.forEach(function (it, i) {
+    if (hasUpdate(it)) updates.push({ it: it, key: keyOf(i) });
+  });
+
+  if (updates.length) {
+    var uh = document.createElement("div"); uh.className = "ghead";
+    uh.textContent = "UPDATES  ·  " + updates.length;
+    host.appendChild(uh);
+    updates.forEach(function (u) { host.appendChild(listRow(u.it, tab, u.key, true)); });
+  }
+
+  var byGroup = {};
+  rest.forEach(function (it, i) {
+    var g = groupFor(it);
+    (byGroup[g] = byGroup[g] || []).push({ it: it, key: restKeys[i] });
+  });
+  GROUP_ORDER.forEach(function (g) {
+    var l = byGroup[g];
+    if (!l || !l.length) return;
+    var h = document.createElement("div"); h.className = "ghead"; h.textContent = g;
+    host.appendChild(h);
+    l.forEach(function (e) { host.appendChild(listRow(e.it, tab, e.key)); });
+  });
+
+  if (selfItem) {
+    host.appendChild(rowEl(selfItem, {
+      footer: true,
+      onOpen: function () { goDetail(tab, selfKey); }
+    }));
+  }
+  return updates.length;
+}
+
+function renderApks() {
+  var data = cache.apps;
+  var apps = itemsOf("apps");
+  if (data && data.disclaimer) {
+    var d = el("disclaimer"); d.textContent = data.disclaimer; d.style.display = "block";
+  }
+  var host = el("groups");
+  host.innerHTML = "";
+  if (!apps.length) { showError("The catalog is empty right now."); return; }
+  renderGrouped(host, apps, "apps", function (i) { return i; }, false);
+  setSubtitle(apps.length, 0);
+}
+
+function renderDapps() {
+  var dapps = itemsOf(current);
+  var host = el("groups");
+  host.innerHTML = "";
+  if (!dapps.length) { showError("The catalog is empty right now."); return; }
+  var k = renderGrouped(host, dapps, current, function (i) { return i; }, true);
+  setSubtitle(dapps.length, k);
 }
 
 // ─── IPFS mirror tab (all three catalogs, gateway-fallback, base-resolved) ───
-// Make a relative catalog path absolute against the gateway that served it. Entries
-// that are already absolute (rare — the snapshot is self-contained) are left untouched.
 function absUrl(base, u) {
   if (!u) return u;
   if (/^https?:\/\//i.test(u)) return u;
   return base + String(u).replace(/^\//, "");
 }
 
-// Fetch one catalog, trying each gateway in turn; cb(data, base) on success, cb(null) if all fail.
 function ipfsGet(path, cb) {
   var bases = IPFS_BASES.slice();
   (function next() {
@@ -273,10 +583,18 @@ function loadIpfs(forId) {
   var done = 0;
   IPFS_CATALOGS.forEach(function (cat, idx) {
     ipfsGet(cat.path, function (data, base) {
-      results[idx] = { cat: cat, data: data, base: base };
+      var items = [];
+      if (data) {
+        items = (cat.kind === "apk")
+          ? ((data && Array.isArray(data.apps)) ? data.apps : [])
+          : (Array.isArray(data) ? data : ((data && Array.isArray(data.dapps)) ? data.dapps : []));
+        items.forEach(function (a) { a.file = absUrl(base, a.file); a.icon = absUrl(base, a.icon); });
+      }
+      results[idx] = { cat: cat, ok: !!data, items: items };
       if (++done === IPFS_CATALOGS.length && forId === current) {
         cache[forId] = results;
-        renderIpfs(results);
+        el("loading").style.display = "none";
+        route();   // re-route: a cold load on a detail hash lands on the detail
       }
     });
   });
@@ -287,241 +605,290 @@ function renderIpfs(results) {
   el("error").style.display = "none";
   var host = el("groups");
   host.innerHTML = "";
-  var any = false;
+  var any = false, total = 0, updates = 0;
 
-  results.forEach(function (r) {
-    var head = document.createElement("h2");
+  results.forEach(function (r, sec) {
+    var head = document.createElement("div"); head.className = "ghead";
     head.textContent = r.cat.title;
+    head.style.color = "var(--accent)";
     host.appendChild(head);
 
-    if (!r || !r.data) {
+    if (!r.ok) {
       var e = document.createElement("div");
-      e.className = "desc";
-      e.style.padding = "2px 2px 10px";
+      e.className = "note";
       e.textContent = "Couldn't reach this catalog over IPFS right now.";
       host.appendChild(e);
       return;
     }
     any = true;
-
-    if (r.cat.kind === "apk") {
-      var apps = (r.data && Array.isArray(r.data.apps)) ? r.data.apps : [];
-      apps.forEach(function (a) { a.file = absUrl(r.base, a.file); a.icon = absUrl(r.base, a.icon); });
-      GROUPS.forEach(function (g) {
-        var members = apps.filter(function (a) { return g.match(a.source || ""); });
-        if (!members.length) return;
-        var sub = document.createElement("h2");
-        sub.textContent = g.title;
-        sub.style.fontSize = "10px";
-        sub.style.opacity = ".75";
-        sub.style.margin = "16px 0 9px";
-        host.appendChild(sub);
-        var grid = document.createElement("div"); grid.className = "cards";
-        members.forEach(function (a) { grid.appendChild(apkCard(a)); });
-        host.appendChild(grid);
-      });
-    } else {
-      var dapps = (r.data && Array.isArray(r.data.dapps)) ? r.data.dapps : [];
-      dapps.forEach(function (d) { d.file = absUrl(r.base, d.file); d.icon = absUrl(r.base, d.icon); });
-      var sorted = dapps.slice().sort(function (a, b) {
-        return String(a.name || "").toLowerCase().localeCompare(String(b.name || "").toLowerCase());
-      });
-      var grid = document.createElement("div"); grid.className = "cards";
-      sorted.forEach(function (d) { grid.appendChild(dappCard(d)); });
-      host.appendChild(grid);
-    }
+    total += r.items.length;
+    updates += renderGrouped(host, r.items, "ipfs",
+      function (i) { return sec + "-" + i; }, r.cat.kind === "mds");
   });
 
+  setSubtitle(total, updates);
   if (!any) showError("Could not reach the IPFS mirror (all gateways failed).");
 }
 
-function showError(extra) {
-  el("loading").style.display = "none";
-  var e = el("error");
-  e.innerHTML = (extra ? (extra + " ") : "Could not load the catalog. ") + '<a id="retry">Try again</a>.';
-  e.style.display = "block";
-  var r = document.getElementById("retry");
-  if (r) r.onclick = function () { delete cache[current]; show(); };
-}
-
-// ─── APK tab (unchanged behaviour: grouped cards with Download links) ────────
-function apkCard(app) {
-  var c = baseCard(app, app.category);
-  if (app.file) {
-    var dl = document.createElement("a");
-    dl.className = "btn btn-primary";
-    dl.href = app.file;
-    dl.target = "_blank";
-    dl.rel = "noopener";
-    dl.setAttribute("download", "");
-    // .apk = install on Android; .dmg/.exe = desktop download.
-    var f = String(app.file).toLowerCase();
-    dl.textContent = (f.indexOf(".dmg") >= 0 || f.indexOf(".exe") >= 0) ? "Download" : "Download APK";
-    c.appendChild(dl);
+// ─── Detail view (AppDetailActivity) ─────────────────────────────────────────
+function resolveDetail(key) {
+  if (current === "ipfs") {
+    var p = String(key).split("-");
+    var results = cache.ipfs;
+    if (!results) return null;
+    var r = results[parseInt(p[0], 10)];
+    var it = r && r.items[parseInt(p[1], 10)];
+    return it ? { item: it, kind: r.cat.kind } : null;
   }
-  return c;
+  var items = itemsOf(current);
+  var item = items[parseInt(key, 10)];
+  return item ? { item: item, kind: SOURCES[current].type === "apk" ? "apk" : "mds" } : null;
 }
 
-function renderApks(data) {
-  var apps = (data && Array.isArray(data.apps)) ? data.apps : [];
-  var disc = data && data.disclaimer;
-  if (disc) { var d = el("disclaimer"); d.textContent = disc; d.style.display = "block"; }
-
-  var host = el("groups");
-  host.innerHTML = "";
-  if (!apps.length) { showError("The catalog is empty right now."); return; }
-
-  GROUPS.forEach(function (g) {
-    var members = apps.filter(function (a) { return g.match(a.source || ""); });
-    if (!members.length) return;
-    var h = document.createElement("h2"); h.textContent = g.title; host.appendChild(h);
-    var grid = document.createElement("div"); grid.className = "cards";
-    members.forEach(function (a) { grid.appendChild(apkCard(a)); });
-    host.appendChild(grid);
-  });
+function showDetail(key) {
+  var res = resolveDetail(key);
+  if (!res) { showList(); return; }   // catalog not loaded yet (cold hash) — list re-routes after fetch
+  el("listView").style.display = "none";
+  el("detailView").style.display = "block";
+  el("dtitle").textContent = res.item.name || "App";
+  el("backBtn").onclick = function () { goList(current); };
+  renderDetail(res.item, res.kind, key);
 }
 
-// ─── MiniDapp tabs (Install straight onto this node) ─────────────────────────
-// The official minimadapps.json sometimes has `description` as an ARRAY of strings — normalize.
-function descText(d) {
-  if (Array.isArray(d)) d = d.join(" ");
-  return d ? String(d).replace(/\s+/g, " ").trim() : "";
-}
+function renderDetail(item, kind, key) {
+  var body = el("detailBody");
+  body.innerHTML = "";
 
-function verCmp(a, b) {   // 1 if a>b, -1 if a<b, 0 equal — numeric dotted compare
-  var pa = String(a || "0").split("."), pb = String(b || "0").split(".");
-  var n = Math.max(pa.length, pb.length);
-  for (var i = 0; i < n; i++) {
-    var x = parseInt(pa[i] || "0", 10) || 0, y = parseInt(pb[i] || "0", 10) || 0;
-    if (x !== y) return x > y ? 1 : -1;
+  // Hero — 72px icon, name, "v{version} · {category}", publisher line.
+  var hero = document.createElement("div"); hero.className = "hero";
+  hero.appendChild(iconEl(item));
+  var hc = document.createElement("div");
+  var hn = document.createElement("div"); hn.className = "hname"; hn.textContent = item.name || "App";
+  hc.appendChild(hn);
+  var hv = document.createElement("div"); hv.className = "hver";
+  hv.textContent = "v" + (item.version || "?") + (item.category ? ("  ·  " + item.category) : "");
+  hc.appendChild(hv);
+  if (item.source) {
+    var hs = document.createElement("div"); hs.className = "hsrc"; hs.textContent = item.source;
+    hc.appendChild(hs);
   }
-  return 0;
-}
+  hero.appendChild(hc);
+  body.appendChild(hero);
 
-function baseCard(item, catText) {
-  var c = document.createElement("div"); c.className = "card";
-  var top = document.createElement("div"); top.className = "top";
-  if (item.icon) {
-    var img = document.createElement("img"); img.className = "ico"; img.src = item.icon; img.alt = "";
-    img.onerror = function () { img.replaceWith(ph("◈")); };
-    top.appendChild(img);
+  // Action area.
+  if (kind === "apk") renderApkActions(body, item);
+  else renderDappActions(body, item, key);
+
+  // VIEW SOURCE CODE — only when the catalog carries a repo (native behavior).
+  if (item.repo && /^https?:\/\//i.test(item.repo)) {
+    var src = document.createElement("a");
+    src.className = "sbtn"; src.textContent = "View source code  ↗";
+    src.href = item.repo; src.target = "_blank"; src.rel = "noopener";
+    body.appendChild(src);
+  }
+
+  // ABOUT / WHAT'S NEW — official entries carry structured about[]/update[]/date;
+  // everything else splits the changelog-style description (Blurb.parse).
+  var about = "", notes = [], updateBullets = null;
+  if (item.about || item.update) {
+    about = descText(item.about).trim();
+    var u = item.update;
+    if (typeof u === "string") u = [u];
+    if (Array.isArray(u) && u.length) updateBullets = u;
+    if (!about) about = blurbParse(item.description).lead;
   } else {
-    top.appendChild(ph("◈"));
+    var b = blurbParse(item.description);
+    about = b.lead; notes = b.notes;
   }
-  var meta = document.createElement("div");
-  var nm = document.createElement("div"); nm.className = "name"; nm.textContent = item.name || "App";
-  meta.appendChild(nm);
-  var ve = document.createElement("div"); ve.className = "ver";
-  ve.textContent = item.version ? ("v" + item.version) : "";
-  meta.appendChild(ve);
-  if (catText) { var ct = document.createElement("div"); ct.className = "cat"; ct.textContent = catText; meta.appendChild(ct); }
-  top.appendChild(meta);
-  c.appendChild(top);
 
-  var d = descText(item.description);
-  if (d) { var de = document.createElement("div"); de.className = "desc"; de.textContent = d; c.appendChild(de); }
-  return c;
+  if (about) {
+    body.appendChild(sectionHead("About"));
+    var p = document.createElement("div"); p.className = "para"; p.textContent = about;
+    body.appendChild(p);
+  }
+
+  if (updateBullets) {
+    body.appendChild(sectionHead("What's new"));
+    if (item.date) {
+      var dl = document.createElement("div"); dl.className = "vlabel"; dl.textContent = item.date;
+      body.appendChild(dl);
+    }
+    var up = document.createElement("div"); up.className = "para";
+    up.textContent = updateBullets.join("\n");
+    up.style.whiteSpace = "pre-line";
+    body.appendChild(up);
+  } else if (notes.length) {
+    body.appendChild(sectionHead("What's new"));
+    var showAll = !!expanded[current + "/" + key];
+    var shown = showAll ? notes : notes.slice(0, 2);
+    shown.forEach(function (n, i) {
+      var w = document.createElement("div"); w.className = i ? "vnote" : "vnote first";
+      var vl = document.createElement("div"); vl.className = "vlabel"; vl.textContent = "v" + n.version;
+      w.appendChild(vl);
+      var tx = document.createElement("div"); tx.className = "para"; tx.textContent = n.text;
+      w.appendChild(tx);
+      body.appendChild(w);
+    });
+    if (!showAll && notes.length > 2) {
+      var more = document.createElement("button"); more.className = "showall";
+      more.textContent = "Show all " + notes.length + " versions  ⌄";
+      more.onclick = function () { expanded[current + "/" + key] = true; renderDetail(item, kind, key); };
+      body.appendChild(more);
+    }
+  }
+
+  // DETAILS table.
+  body.appendChild(sectionHead("Details"));
+  var t = document.createElement("div"); t.className = "dtable";
+  detailRow(t, "Version", "v" + (item.version || "?") + (item.versionCode ? (" (" + item.versionCode + ")") : ""));
+  var have = (kind === "mds") ? installedVer(item) : undefined;
+  if (have !== undefined) detailRow(t, "Installed", "v" + have);
+  if (item.category) detailRow(t, "Category", item.category);
+  detailRow(t, "Publisher", item.source || (current === "official" ? "Minima" : "PandaDapps"));
+  if (item.packageId) detailRow(t, "Package", item.packageId, true);
+  if (item.sha256) detailRow(t, "SHA-256", item.sha256, true, true);
+  if (item.file) {
+    try { detailRow(t, "Host", new URL(item.file).hostname); } catch (e) {}
+  }
+  body.appendChild(t);
 }
 
-function dappCard(dapp) {
-  var c = baseCard(dapp, dapp.category);
+function sectionHead(txt) {
+  var h = document.createElement("div"); h.className = "shead"; h.textContent = txt;
+  return h;
+}
 
-  // Installed state from the node's own `mds` list (matched by dapp.conf name, best effort).
-  var have = installed ? installed[String(dapp.name || "").toLowerCase()] : undefined;
-  var isInstalled = have !== undefined;
-  var hasUpdate = isInstalled && dapp.version && verCmp(dapp.version, have) > 0;
-
-  if (isInstalled) {
-    var st = document.createElement("div"); st.className = "state";
-    st.textContent = hasUpdate ? ("Installed v" + have + " · update available") : "Installed ✓";
-    c.appendChild(st);
+function detailRow(table, label, value, mono, copyable) {
+  var r = document.createElement("div"); r.className = "drow";
+  var k = document.createElement("div"); k.className = "k"; k.textContent = label;
+  r.appendChild(k);
+  var v = document.createElement("div"); v.className = "v" + (mono ? " mono" : "");
+  v.textContent = value;           // full value, never truncated
+  r.appendChild(v);
+  if (copyable) {
+    var c = document.createElement("span"); c.className = "copy"; c.textContent = "COPY";
+    r.style.cursor = "pointer";
+    r.onclick = function () { copyText(value); };
+    r.appendChild(c);
   }
+  table.appendChild(r);
+}
+
+// APK detail: a Download link — the webview can't install Android packages.
+function renderApkActions(body, item) {
+  if (!item.file) return;
+  var a = document.createElement("a");
+  a.className = "abtn";
+  a.href = item.file; a.target = "_blank"; a.rel = "noopener";
+  a.setAttribute("download", "");
+  var f = String(item.file).toLowerCase();
+  var isApk = f.indexOf(".apk") >= 0;
+  a.textContent = isApk ? "Download APK" : (f.indexOf(".dmg") >= 0 || f.indexOf(".exe") >= 0 ? "Download" : "Get");
+  body.appendChild(a);
+  var s = document.createElement("div"); s.className = "stateline";
+  s.textContent = isApk ? "Downloads to your device — open the file to install" : "Opens in your browser";
+  body.appendChild(s);
+}
+
+// MiniDapp detail: INSTALL / UPDATE / quiet INSTALLED + centered state line.
+// No "Open" action — a read-trust MiniDapp cannot launch another dapp's session.
+function renderDappActions(body, item, key) {
+  if (!item.file) return;
+  var name = String(item.name || "").toLowerCase();
+  var have = installedVer(item);
+  var update = hasUpdate(item);
 
   var btn = document.createElement("button");
-  if (dapp.file) {
-    if (isInstalled && !hasUpdate) {
-      btn.className = "btn btn-quiet";
-      btn.textContent = "Installed";
-      btn.disabled = true;
+  var state = document.createElement("div");
+  state.className = "stateline";
+
+  function paint() {
+    if (busy[name] === "installing") {
+      btn.className = "abtn"; btn.disabled = true; btn.textContent = "Installing…";
+      state.className = "stateline"; state.textContent = "Your node is downloading the dapp";
+    } else if (busy[name] === "pending") {
+      btn.className = "abtn"; btn.disabled = true; btn.textContent = "Pending…";
+      state.className = "stateline warn";
+      state.textContent = "Approve the install in the Pending MiniDapp";
+    } else if (have !== undefined && !update) {
+      btn.className = "abtn quiet"; btn.disabled = true; btn.textContent = "Installed";
+      state.className = "stateline ok"; state.textContent = "Installed  ·  up to date";
     } else {
-      btn.className = "btn btn-primary";
-      btn.textContent = hasUpdate ? "Update" : "Install";
-      btn.setAttribute("data-label", btn.textContent);
-      btn.onclick = function () { installDapp(dapp, btn); };
+      btn.className = "abtn"; btn.disabled = false;
+      btn.textContent = update ? "Update" : "Install";
+      state.className = "stateline";
+      state.textContent = (have !== undefined)
+        ? ("Installed v" + have + "  ·  update available") : "Not installed";
     }
-    c.appendChild(btn);
   }
-  return c;
+  paint();
+
+  btn.onclick = function () {
+    if (btn.disabled) return;
+    installDapp(item, function () {
+      have = installedVer(item);
+      update = hasUpdate(item);
+      paint();
+    });
+  };
+  body.appendChild(btn);
+  body.appendChild(state);
 }
 
-function renderDapps(data) {
-  var dapps = Array.isArray(data) ? data : ((data && Array.isArray(data.dapps)) ? data.dapps : []);
-  var host = el("groups");
-  host.innerHTML = "";
-  if (!dapps.length) { showError("The catalog is empty right now."); return; }
-
-  var sorted = dapps.slice().sort(function (a, b) {
-    return String(a.name || "").toLowerCase().localeCompare(String(b.name || "").toLowerCase());
-  });
-  var h = document.createElement("h2");
-  h.textContent = SOURCES[current].label + " · " + sorted.length + " MiniDapps";
-  host.appendChild(h);
-  var grid = document.createElement("div"); grid.className = "cards";
-  sorted.forEach(function (d) { grid.appendChild(dappCard(d)); });
-  host.appendChild(grid);
-}
-
-// Download the .mds.zip via the node, then `mds action:install` it. The download response
-// (FILEcommand.java) saves to /Downloads/<name> and returns `path` = the FULL filesystem path —
-// use that directly; fall back to getpath on the returned relative `file` ("/Downloads/…").
-// With read-only MDS permission the command lands in Pending for the user to approve —
-// same flow the PocketWeb store fronts use.
-function installDapp(dapp, btn) {
-  if (btn.disabled) return;
-  btn.disabled = true;
-  btn.textContent = "Installing…";
+// ─── Install machinery (unchanged flow: download → getpath fallback → install) ─
+// The download response (FILEcommand.java) saves to /Downloads/<name> and returns
+// `path` = the FULL filesystem path; fall back to getpath on the relative `file`.
+// With read-only MDS permission the command lands in Pending for the user to approve.
+function installDapp(dapp, repaint) {
+  var name = String(dapp.name || "").toLowerCase();
+  if (busy[name]) return;
+  busy[name] = "installing";
+  repaint();
   MDS.file.download(dapp.file, function (res) {
-    if (!res || res.status === false) { installFail(dapp, btn, "the download failed"); return; }
+    if (!res || res.status === false) { installFail(dapp, repaint, "the download failed"); return; }
     var full = "", rel = "";
     try {
       full = res.response.download.path || "";
       rel  = res.response.download.file || "";
     } catch (e) {}
-    if (full) { runInstall(dapp, btn, full); return; }
+    if (full) { runInstall(dapp, repaint, full); return; }
     if (!rel) rel = "/Downloads/" + String(dapp.file).split("/").pop().split("?")[0];
     if (rel.charAt(0) !== "/") rel = "/" + rel;
     MDS.file.getpath(rel, function (p) {
       var path = "";
       try { path = p.response.getpath.path || ""; } catch (e) {}
-      if (!p || p.status === false || !path) { installFail(dapp, btn, "couldn't locate the downloaded file"); return; }
-      runInstall(dapp, btn, path);
+      if (!p || p.status === false || !path) { installFail(dapp, repaint, "couldn't locate the downloaded file"); return; }
+      runInstall(dapp, repaint, path);
     });
   });
 }
 
-function runInstall(dapp, btn, path) {
+function runInstall(dapp, repaint, path) {
+  var name = String(dapp.name || "").toLowerCase();
   MDS.cmd("mds action:install file:" + path + " trust:read", function (r) {
     if (r && r.pending) {
-      btn.textContent = "Pending…";
+      busy[name] = "pending";
       toast(dapp.name + " sent to Pending — approve it in the Pending MiniDapp, then it appears in your MiniHub.", true);
     } else if (r && r.status) {
-      btn.textContent = "Installed";
-      btn.className = "btn btn-quiet";
-      if (installed) installed[String(dapp.name || "").toLowerCase()] = String(dapp.version || "");
+      delete busy[name];
+      if (installed) installed[name] = String(dapp.version || "");
       toast(dapp.name + " installed — it's now in your MiniHub.", true);
     } else {
-      installFail(dapp, btn, (r && (r.error || r.message)) || "the install failed");
+      installFail(dapp, repaint, (r && (r.error || r.message)) || "the install failed");
+      return;
     }
+    repaint();
   });
 }
 
-function installFail(dapp, btn, why) {
-  btn.disabled = false;
-  btn.textContent = btn.getAttribute("data-label") || "Install";
+function installFail(dapp, repaint, why) {
+  var name = String(dapp.name || "").toLowerCase();
+  delete busy[name];
   toast("Couldn't install " + dapp.name + " — " + why + ". Try again.", false);
+  repaint();
 }
 
-// Ask the node what's already installed so cards can show Installed / Update. Best effort:
+// Ask the node what's already installed so rows can show Installed / Update. Best effort:
 // if the command is refused (read-only permission), everything just shows Install.
 function loadInstalled(cb) {
   MDS.cmd("mds", function (res) {
@@ -538,10 +905,17 @@ function loadInstalled(cb) {
   });
 }
 
+el("refreshBtn").onclick = function () {
+  cache = {}; busy = {}; expanded = {};
+  loadInstalled(function () { route(); });
+};
+window.addEventListener("hashchange", route);
+
 MDS.init(function (msg) {
   if (msg.event === "inited") {
+    ready = true;
     buildTabs();
-    loadInstalled(function () { show(); });
+    loadInstalled(function () { route(); });
   }
 });
 </script>
