@@ -881,7 +881,12 @@ function installDapp(dapp, repaint) {
 
 function runInstall(dapp, repaint, path) {
   var name = String(dapp.name || "").toLowerCase();
-  MDS.cmd("mds action:install file:" + path + " trust:read", function (r) {
+  // Same quoted-path boundary as minimaDesk/main/main.js and main/dappimport.js.
+  if (typeof path !== "string" || !path || /["\r\n]/.test(path)) {
+    installFail(dapp, repaint, "the install path is empty or contains a quote or newline");
+    return;
+  }
+  MDS.cmd('mds action:install file:"' + path + '" trust:read', function (r) {
     if (r && r.pending) {
       busy[name] = "pending";
       toast(dapp.name + " sent to Pending — approve it in the Pending MiniDapp, then it appears in your MiniHub.", true);
